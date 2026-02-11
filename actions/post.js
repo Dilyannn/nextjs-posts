@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { storePost } from "@/lib/posts.js";
 import { uploadImage } from "@/lib/cloudinary.js";
+import { revalidatePath } from "next/cache";
 
 export default async function createPost(_, formData) { // The first argument is the request object, which we can ignore in this case
   const title = formData.get("title");
@@ -42,5 +43,6 @@ export default async function createPost(_, formData) { // The first argument is
     userId: 1,
   });
 
+  revalidatePath("/feed");
   redirect("/feed");
 }
