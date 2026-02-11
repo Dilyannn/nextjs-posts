@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { storePost } from "@/lib/posts.js";
+import { uploadImage } from "@/lib/cloudinary.js";
 
 export default async function createPost(_, formData) { // The first argument is the request object, which we can ignore in this case
   const title = formData.get("title");
@@ -25,11 +26,19 @@ export default async function createPost(_, formData) { // The first argument is
   if (errors.length > 0) {
     return { errors };
   }
+  
+  let imageUrl = null;
+
+  try {
+    imageUrl = await uploadImage(image);
+  } catch (error) {
+    throw new Error("Image upload failed. Please try again.");
+  }
 
   await storePost({
     title,
     content,
-    imageUrl: "",
+    imageUrl,
     userId: 1,
   });
 
