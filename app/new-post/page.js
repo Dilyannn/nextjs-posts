@@ -1,30 +1,47 @@
+import { storePost } from "@/lib/posts.js";
+import { redirect } from "next/navigation";
+
+import PostForm from "@/components/post-form.js";
+
 export default function NewPostPage() {
+  async function createPost(_, formData) { // The first argument is the request object, which we can ignore in this case
+    "use server";
+
+    const title = formData.get("title");
+    const content = formData.get("content");
+    const image = formData.get("image");
+
+    let errors = [];
+
+    if (!title || title.trim().length === 0) {
+      errors.push("Title is required!");
+    }
+
+    if (!content || content.trim().length === 0) {
+      errors.push("Content is required!");
+    }
+
+    if (image && image.size === 0) { 
+      errors.push("Image is required!");
+    }
+
+    if (errors.length > 0) {
+      return { errors };
+    }
+
+    await storePost({
+      title,
+      content,
+      imageUrl: "",
+      userId: 1, 
+    });
+
+    redirect("/feed");
+  }
+
   return (
     <>
-      <h1>Create a new post</h1>
-      <form>
-        <p className="form-control">
-          <label htmlFor="title">Title</label>
-          <input type="text" id="title" name="title" />
-        </p>
-        <p className="form-control">
-          <label htmlFor="image">Image URL</label>
-          <input
-            type="file"
-            accept="image/png, image/jpeg"
-            id="image"
-            name="image"
-          />
-        </p>
-        <p className="form-control">
-          <label htmlFor="content">Content</label>
-          <textarea id="content" name="content" rows="5" />
-        </p>
-        <p className="form-actions">
-          <button type="reset">Reset</button>
-          <button>Create Post</button>
-        </p>
-      </form>
+      <PostForm action={createPost} />
     </>
   );
 }
