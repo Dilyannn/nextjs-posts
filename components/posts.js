@@ -7,11 +7,15 @@ import { formatDate } from '@/lib/format';
 import LikeButton from './like-icon';
 import likePostStatus from '@/actions/like.js';
 
-function ImageLoader({ src }) {
-  return src;
+function ImageLoader({ src, quality }) {
+  const urlStart = src.split('upload/')[0];
+  const urlEnd = src.split('upload/')[1];
+  const transformations = `w_400,q_${quality || 50}`;
+
+  return `${urlStart}upload/${transformations}/${urlEnd}`;
 }
 
-function Post({ post, action }) {
+function Post({ post, action, priority }) {
   return (
     <article className="post">
       <div className="post-image">
@@ -19,8 +23,10 @@ function Post({ post, action }) {
           loader={ImageLoader}
           src={post.image || null} 
           fill 
-          quality={50} // between 1 and 100, where 100 is the best quality but largest file size
+          sizes="(max-width: 600px) 100vw, 400px"
           alt={post.title} 
+          priority={priority}
+          loading={priority ? 'eager' : undefined}
         />
       </div>
       <div className="post-content">
@@ -75,9 +81,9 @@ export default function Posts({ posts }) {
 
   return (
     <ul className="posts">
-      {optimisticPosts.map((post) => (
+      {optimisticPosts.map((post, index) => (
         <li key={post.id}>
-          <Post post={post} action={updatePost} />
+          <Post post={post} action={updatePost} priority={index < 3} />
         </li>
       ))}
     </ul>
