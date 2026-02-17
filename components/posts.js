@@ -1,15 +1,27 @@
 "use client";
 
+import Image from 'next/image';
 import { useOptimistic } from 'react';
+
 import { formatDate } from '@/lib/format';
 import LikeButton from './like-icon';
 import likePostStatus from '@/actions/like.js';
+
+function ImageLoader({ src }) {
+  return src;
+}
 
 function Post({ post, action }) {
   return (
     <article className="post">
       <div className="post-image">
-        <img src={post.image || null} alt={post.title} />
+        <Image 
+          loader={ImageLoader}
+          src={post.image || null} 
+          fill 
+          quality={50} // between 1 and 100, where 100 is the best quality but largest file size
+          alt={post.title} 
+        />
       </div>
       <div className="post-content">
         <header>
